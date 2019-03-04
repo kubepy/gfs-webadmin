@@ -1,0 +1,8 @@
+---
+# tasks file for tendrl-storage-node-collectd
+
+- include: install.yml
+  when: state == 'present'
+
+- include: uninstall.yml
+  when: state == 'absent'

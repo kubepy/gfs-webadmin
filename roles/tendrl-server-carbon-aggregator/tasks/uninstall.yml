@@ -1,0 +1,39 @@
+---
+# tasks file for tendrl-server-carbon-aggregator
+
+- name: Restore the settings of groups['tendrl-server'] carbon-aggregator service
+  debug:
+    msg:
+      - "Restore [aggregator]-> 'FORWARD_ALL = False' for catching all metrics."
+      - "Restore [aggregator]-> '# REWRITE_RULES = rewrite-rules.conf' file."
+
+- name: Restore 'FORWARD_ALL' and 'REWRITE_RULES' feature for carbon-aggregator
+  lineinfile:
+    path: /etc/carbon/carbon.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - regexp: '^#?.*FORWARD_ALL.*'
+      line: 'FORWARD_ALL = False'
+    - regexp: '^#?.*REWRITE_RULES.*'
+      line: '# REWRITE_RULES = rewrite-rules.conf'
+
+- name: Delete rewrite-rules.conf file for carbon-aggregator
+  file:
+    path: /etc/carbon/rewrite-rules.conf
+    state: absent
+
+- name: Disable carbon-aggregator service
+  service:
+    name: carbon-aggregator
+    enabled: yes
+ 
+- name: Stop carbon-aggregator service
+  service:
+    name: carbon-aggregator
+    state: stopped
+
+- name: Restart carbon-cache service
+  service:
+    name: carbon-cache
+    state: restarted

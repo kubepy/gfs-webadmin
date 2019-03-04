@@ -1,0 +1,15 @@
+---
+# tasks file for tendrl-server-whisper
+
+- name: Find and Delete the ip_name in whisper folder
+  shell: |
+    for i in `cat /etc/carbon/rewrite-rules.conf | awk -F\= 'NF!=1{print $1}'`;
+        do find /var/lib/carbon/whisper/tendrl/clusters/ -name "$i" -type d | xargs rm -rfv ;
+    done
+  register: whisper_delete_results
+  when: state == 'present'
+
+- name: Print the results of deletion
+  debug:
+    msg: "{{ whisper_delete_results.stdout_lines }}"
+  when: state == 'present'

@@ -1,0 +1,21 @@
+---
+# tasks file for tendrl-storage-node-collectd
+
+- name: Print the settings of groups['gluster-servers'] collectd service
+  debug:
+    msg:
+      - "Changing collectd uploading port from 2003/tcp to 2023/tcp for sending to the carbon-aggregator."
+
+- name: Replace collectd.d configation file for changing uploading port
+  lineinfile:
+    path: "{{ item }}"
+    regexp: '^.*graphite_port.*'
+    line: '        graphite_port "2023"'
+  with_items:
+    - /etc/collectd.d/tendrl_gluster_brick_disk_stats.conf
+    - /etc/collectd.d/tendrl_gluster.conf
+ 
+- name: Restart collectd service
+  service:
+    name: collectd
+    state: restarted

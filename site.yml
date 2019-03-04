@@ -1,0 +1,22 @@
+---
+
+- hosts: all
+  gather_facts: yes
+  tasks:
+    - set_fact:
+        state: present
+
+- hosts: tendrl-server
+  gather_facts: no
+  roles:
+   - role: tendrl-server-carbon-aggregator
+
+- hosts: gluster-servers
+  gather_facts: no
+  roles:
+   - role: tendrl-storage-node-collectd
+
+- hosts: tendrl-server
+  gather_facts: no
+  roles:
+   - role: tendrl-server-whisper

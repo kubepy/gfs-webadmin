@@ -1,0 +1,8 @@
+---
+# tasks file for tendrl-server-carbon-aggregator
+
+- include: install.yml
+  when: state == 'present'
+
+- include: uninstall.yml
+  when: state == 'absent'

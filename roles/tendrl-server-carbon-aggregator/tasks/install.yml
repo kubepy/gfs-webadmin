@@ -1,0 +1,46 @@
+---
+# tasks file for tendrl-server-carbon-aggregator
+
+- name: Print the settings of groups['tendrl-server'] carbon-aggregator service
+  debug:
+    msg:
+      - "Enable [aggregator]-> 'FORWARD_ALL = True' for catching all metrics."
+      - "Enable [aggregator]-> 'REWRITE_RULES = rewrite-rules.conf' file."
+
+- name: Enable 'FORWARD_ALL' and 'REWRITE_RULES' feature for carbon-aggregator
+  lineinfile:
+    path: /etc/carbon/carbon.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - regexp: '^#?.*FORWARD_ALL.*'
+      line: 'FORWARD_ALL = True'
+    - regexp: '^#?.*REWRITE_RULES.*'
+      line: 'REWRITE_RULES = rewrite-rules.conf'
+
+- name: Create rewrite-rules.conf file for carbon-aggregator
+  template:
+    src: rewrite-rules.conf.j2
+    dest: /etc/carbon/rewrite-rules.conf
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+
+- name: Replace the "." to "_" for rewrite-rules.conf file
+  replace:
+    path: /etc/carbon/rewrite-rules.conf
+    regexp: '\.'
+    replace: '_'
+
+- name: Enable carbon-aggregator service
+  service:
+    name: carbon-aggregator
+    enabled: yes
+
+- name: Restart carbon-cache and carbon-aggregator service
+  service:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - carbon-aggregator
+    - carbon-cache
